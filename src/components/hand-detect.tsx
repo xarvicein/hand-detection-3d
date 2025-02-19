@@ -1,7 +1,18 @@
 import { FilesetResolver, HandLandmarker, HandLandmarkerResult } from '@mediapipe/tasks-vision'
 import React, { useEffect, useRef } from 'react'
+interface Point {
+  x: number;
+  y: number;
+  z: number;
+  visibility: number;
+}
+
+interface HandData {
+  right: Point[];
+}
+
 type props = {
-  setHandResults: (results: unknown) => void
+  setHandResults: (results: HandData) => void
 }
 async function initVideo(videoElement: HTMLVideoElement) {
   const stream = await navigator.mediaDevices.getUserMedia({
@@ -49,7 +60,7 @@ function HandDetect({setHandResults}: props) {
     detetctInterval.current = setInterval(() => {
       const detections = handLandMarker.detectForVideo(videoElement, Date.now())
       processDetections(detections, setHandResults)
-    }, 1000)
+    }, 100)
   }
   return (
     <div>
