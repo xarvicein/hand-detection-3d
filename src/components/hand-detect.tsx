@@ -72,7 +72,7 @@ function HandDetect({setHandResults}: props) {
 
 export default HandDetect
 
-function processDetections(detections: HandLandmarkerResult, setHandResults: (results: unknown) => void) {
+function processDetections(detections: HandLandmarkerResult, setHandResults: (results: HandData) => void) {
   // console.log(detections)
 
   if (detections && detections.handedness.length >= 1){

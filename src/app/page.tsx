@@ -1,7 +1,7 @@
 "use client";
 import HandDetect from "@/components/hand-detect";
 import HandDisplay from "@/components/hand-display";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface Point {
   x: number;
@@ -19,7 +19,6 @@ export default function Home() {
   const [handData, setHandData] = useState<HandData| null>(null)
 
   const setHandResults = (results: HandData) => {
-    console.log(results)
     setHandData(results)
   };
   return (

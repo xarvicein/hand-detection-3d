@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
+// @ts-expect-error OrbitControls doeas exist
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 interface Point {
@@ -27,7 +28,8 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
       0.1,
       1000
     );
-    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current });
+    // @ts-expect-error canvas element will be always assigned
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current }); 
     renderer.setSize(
       containerRef.current.clientWidth,
       containerRef.current.clientHeight
@@ -116,7 +118,7 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
       geometry.dispose();
       material.dispose();
       // lineGeometry.dispose();
-      // lineMaterial.dispose();
+      lineMaterial.dispose();
     };
   }, [handData]);
 
