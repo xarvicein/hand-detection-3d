@@ -78,7 +78,9 @@ function processDetections(detections: HandLandmarkerResult, setHandResults: (re
   if (detections && detections.handedness.length >= 1){
     for (const data of detections.handedness) { 
       if(data[0].categoryName === "Right"){
+        console.log(detections)
         setHandResults({right: detections.landmarks[data[0].index]})
+        break
       }
     }
   }

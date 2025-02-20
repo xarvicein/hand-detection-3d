@@ -22,12 +22,34 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
     if (!containerRef.current || !handData || !handData.right) return;
 
     const scene = new THREE.Scene();
+    
+    // --------
+    scene.background = new THREE.Color( 0x999999 );
+
+    const light = new THREE.DirectionalLight( 0xffffff, 3 );
+    light.position.set( 0.5, 1.0, 0.5 ).normalize();
+
+    scene.add( light );
+    // --------
+    const frameWidth = containerRef.current.clientWidth;
+    const frameHeight = containerRef.current.clientHeight;
+    console.table({frameWidth, frameHeight})
     const camera = new THREE.PerspectiveCamera(
       75,
       containerRef.current.clientWidth / containerRef.current.clientHeight,
       0.1,
       1000
     );
+
+    camera.position.z = -1; // Adjust for better view
+    camera.position.y = -0.4;
+		// camera.position.z = 10;
+
+    scene.add( camera );
+
+    const grid = new THREE.GridHelper( 10, 100, 0xffffff, 0x7b7b7b );
+    scene.add( grid );
+    
     // @ts-expect-error canvas element will be always assigned
     const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current }); 
     renderer.setSize(
@@ -40,11 +62,11 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
     const positions = new Float32Array(handData.right.length * 3); // 3 coordinates per point
     handData.right.forEach((point, index) => {
       positions[index * 3] = point.x - 0.5;
-      positions[index * 3 + 1] = point.y - 0.5;
+      positions[index * 3 + 1] = point.y - 0.8;
       positions[index * 3 + 2] = point.z;
     });
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-
+    console.log(positions)
     // Create points material
     const material = new THREE.PointsMaterial({
       color: 0xff0000,
@@ -60,7 +82,7 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
 
     // Create lines between points
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff }); // Blue lines
-    const handLandmarking = [
+    const handConnector = [
       [0, 1, 2, 3, 4], 
       [0, 5, 6, 7, 8], 
       [9, 10, 11, 12],
@@ -68,18 +90,15 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
       [5, 9, 13, 17],
       [0, 17, 18, 19, 20]
     ];
-    handLandmarking.forEach((item) => {
+    handConnector.forEach((item) => {
       const lineGeometry = new THREE.BufferGeometry().setFromPoints(
         item.map(
-          (point) => new THREE.Vector3(handData.right[point].x - 0.5, handData.right[point].y - 0.5, handData.right[point].z)
+          (point) => new THREE.Vector3(handData.right[point].x - 0.5, handData.right[point].y - 0.8, handData.right[point].z )
         )
       );
       const line = new THREE.Line(lineGeometry, lineMaterial);
       scene.add(line);
     });
-
-    // Set camera position
-    camera.position.z = 0.5; // Adjust for better view
 
     // Add OrbitControls for interactivity
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -126,7 +145,7 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
     <div ref={containerRef} className="w-full h-full">
       <canvas
         ref={canvasRef}
-        className=" rotate-180"
+        className=" -scale-x-1 rotate-180"
         style={{ width: "100%", height: "100%" }}
       />
     </div>
