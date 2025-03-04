@@ -79,13 +79,11 @@ function processDetections(
     for (const data of detections.handedness) {
       if (data[0].categoryName === "Right") {
         setHandResults({
-          right: { landmarks: detections.landmarks[data[0].index] },
+          right: detections.landmarks[data[0].index],
         });
-        break;
       }
     }
   } else {
-    console.log(detections);
     setHandResults({ right: null });
   }
 }
