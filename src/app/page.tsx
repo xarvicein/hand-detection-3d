@@ -1,22 +1,15 @@
 "use client";
 import HandDetect from "@/components/hand-detect";
 import HandDisplay from "@/components/hand-display";
+// import Skeleton from "@/components/skeleton";
 import { useState } from "react";
 
-interface Point {
-  x: number;
-  y: number;
-  z: number;
-  visibility: number;
-}
-interface HandData {
-  right: Point[];
-}
+
 
 
 export default function Home() {
 
-  const [handData, setHandData] = useState<HandData| null>(null)
+  const [handData, setHandData] = useState<HandData | null>(null)
 
   const setHandResults = (results: HandData) => {
     setHandData(results)
@@ -29,6 +22,7 @@ export default function Home() {
         </div>
         <div className="h-full w-full">
         <HandDisplay handData={handData} />
+        {/* <Skeleton /> */}
 
         </div>
       </div>

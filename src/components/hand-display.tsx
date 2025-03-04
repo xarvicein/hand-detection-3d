@@ -1,153 +1,125 @@
-import React, { useRef, useEffect } from "react";
-import * as THREE from "three";
-// @ts-expect-error OrbitControls doeas exist
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
-interface Point {
-  x: number;
-  y: number;
-  z: number;
-  visibility: number;
-}
-
-interface HandData {
-  right: Point[];
-}
+import React, { useRef, useEffect, useState } from "react";
+import ThreeBox from "@/lib/three-box";
+import { HandData } from "@/lib/three-box";
 
 const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
-  const canvasRef = useRef(null);
+  const threeBox = useRef<ThreeBox | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [cam, setCam] = useState({ x: 0, y: -1, z: 1 });
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !handData || !handData.right) return;
+    if (canvasRef.current && containerRef.current) {
+      threeBox.current = new ThreeBox(canvasRef.current, containerRef.current);
+      threeBox.current.animate();
+    }
+  }, []);
 
-    const scene = new THREE.Scene();
-    
-    // --------
-    scene.background = new THREE.Color( 0x999999 );
+  function updateCamera(x: number, y: number, z: number) {
+    threeBox.current?.setCameraPosition(x, y, z);
+    setCam({ x, y, z });
+  }
 
-    const light = new THREE.DirectionalLight( 0xffffff, 3 );
-    light.position.set( 0.5, 1.0, 0.5 ).normalize();
-
-    scene.add( light );
-    // --------
-    const frameWidth = containerRef.current.clientWidth;
-    const frameHeight = containerRef.current.clientHeight;
-    console.table({frameWidth, frameHeight})
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      containerRef.current.clientWidth / containerRef.current.clientHeight,
-      0.1,
-      1000
-    );
-
-    camera.position.z = -1; // Adjust for better view
-    camera.position.y = -0.4;
-		// camera.position.z = 10;
-
-    scene.add( camera );
-
-    const grid = new THREE.GridHelper( 10, 100, 0xffffff, 0x7b7b7b );
-    scene.add( grid );
-    
-    // @ts-expect-error canvas element will be always assigned
-    const renderer = new THREE.WebGLRenderer({ canvas: canvasRef.current }); 
-    renderer.setSize(
-      containerRef.current.clientWidth,
-      containerRef.current.clientHeight
-    );
+  useEffect(() => {
+    if (!containerRef.current || !handData || !handData.right) {
+      threeBox.current?.removeHand();
+      return;
+    }
+    threeBox.current?.addHand(handData);
+    threeBox.current?.animate();
 
     // Create points geometry
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(handData.right.length * 3); // 3 coordinates per point
-    handData.right.forEach((point, index) => {
-      positions[index * 3] = point.x - 0.5;
-      positions[index * 3 + 1] = point.y - 0.8;
-      positions[index * 3 + 2] = point.z;
-    });
-    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    console.log(positions)
-    // Create points material
-    const material = new THREE.PointsMaterial({
-      color: 0xff0000,
-      size: 0.02,
-      sizeAttenuation: true,
-      alphaTest: 0.5,
-      transparent: true,
-    }); // Red points
-    material.color.setHSL(1.0, 0.3, 0.7, THREE.SRGBColorSpace);
-    // Create points object
-    const pointsObject = new THREE.Points(geometry, material);
-    scene.add(pointsObject);
-
-    // Create lines between points
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff }); // Blue lines
-    const handConnector = [
-      [0, 1, 2, 3, 4], 
-      [0, 5, 6, 7, 8], 
-      [9, 10, 11, 12],
-      [13, 14, 15, 16],
-      [5, 9, 13, 17],
-      [0, 17, 18, 19, 20]
-    ];
-    handConnector.forEach((item) => {
-      const lineGeometry = new THREE.BufferGeometry().setFromPoints(
-        item.map(
-          (point) => new THREE.Vector3(handData.right[point].x - 0.5, handData.right[point].y - 0.8, handData.right[point].z )
-        )
-      );
-      const line = new THREE.Line(lineGeometry, lineMaterial);
-      scene.add(line);
-    });
-
-    // Add OrbitControls for interactivity
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.screenSpacePanning = false;
-
-    // Animation loop
-    const animate = () => {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    // Handle resize
-    const handleResize = () => {
-      if (containerRef.current) {
-        camera.aspect =
-          containerRef.current.clientWidth / containerRef.current.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(
-          containerRef.current.clientWidth,
-          containerRef.current.clientHeight
-        );
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup
+    // const geometry = new THREE.BufferGeometry();
+    // const positions = new Float32Array(handData.right.length * 3); // 3 coordinates per point
+    // handData.right.forEach((point, index) => {
+    //   positions[index * 3] = point.x - 0.5;
+    //   positions[index * 3 + 1] = point.y - 0.8;
+    //   positions[index * 3 + 2] = point.z;
+    // });
+    // geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    // // Create points material
+    // const material = new THREE.PointsMaterial({
+    //   color: 0xff0000,
+    //   size: 0.02,
+    //   sizeAttenuation: true,
+    //   alphaTest: 0.5,
+    //   transparent: true,
+    // }); // Red points
+    // material.color.setHSL(1.0, 0.3, 0.7, THREE.SRGBColorSpace);
+    // // Create points object
+    // const pointsObject = new THREE.Points(geometry, material);
+    // scene.add(pointsObject);
     return () => {
-      window.removeEventListener("resize", handleResize);
-      renderer.dispose();
-      geometry.dispose();
-      material.dispose();
-      // lineGeometry.dispose();
-      lineMaterial.dispose();
+      threeBox.current?.cleanup();
     };
   }, [handData]);
 
   return (
-    <div ref={containerRef} className="w-full h-full">
+    <div ref={containerRef} className="w-full h-full ">
       <canvas
         ref={canvasRef}
-        className=" -scale-x-1 rotate-180"
+        className=""
         style={{ width: "100%", height: "100%" }}
       />
+      <div className=" absolute bottom-0 right-0 flex gap-2">
+        <span className="p-0 border border-gray-50 rounded">
+          <button
+            className="h-full border border-black px-2"
+            onClick={() => {
+              updateCamera(cam.x - 1, cam.y, cam.z);
+            }}
+          >
+            -
+          </button>
+          {cam.x}
+          <button
+            className="h-full border border-black px-2"
+            onClick={() => {
+              updateCamera(cam.x + 1, cam.y, cam.z);
+            }}
+          >
+            +
+          </button>
+        </span>
+        <span className="p-0 border border-gray-50 rounded">
+          <button
+            className="h-full border border-black px-2"
+            onClick={() => {
+              updateCamera(cam.x, cam.y - 1, cam.z);
+            }}
+          >
+            -
+          </button>
+          {cam.y}
+          <button
+            className="h-full border border-black px-2"
+            onClick={() => {
+              updateCamera(cam.x, cam.y + 1, cam.z);
+            }}
+          >
+            +
+          </button>
+        </span>
+        <span className="p-0 border border-gray-50 rounded">
+          <button
+            className="h-full border border-black px-2"
+            onClick={() => {
+              updateCamera(cam.x, cam.y, cam.z - 1);
+            }}
+          >
+            -
+          </button>
+          {cam.z}
+          <button
+            className="h-full border border-black px-2"
+            onClick={() => {
+              updateCamera(cam.x, cam.y, cam.z + 1);
+            }}
+          >
+            +
+          </button>
+        </span>
+      </div>
     </div>
   );
 };
