@@ -4,7 +4,7 @@ import HandDisplay from "@/components/hand-display";
 // import Skeleton from "@/components/skeleton";
 import { useState } from "react";
 
-
+import { HandData } from "@/lib/three-box";
 
 
 export default function Home() {

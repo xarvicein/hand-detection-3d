@@ -7,7 +7,7 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const statsRef = useRef<HTMLDivElement | null>(null);
-  const [cam, setCam] = useState({ x: 0, y: -1, z: 1 });
+  const [cam, setCam] = useState({ x: 0, y: 0.2, z: 1 });
 
   useEffect(() => {
     if (canvasRef.current && containerRef.current) {
@@ -47,14 +47,14 @@ const HandDisplay: React.FC<{ handData: HandData | null }> = ({ handData }) => {
           <span key={axis} className="p-0 border border-gray-50 rounded">
             <button
               className="h-full border border-black px-2"
-              onClick={() => updateCamera(cam.x - (axis === "x" ? 1 : 0), cam.y - (axis === "y" ? 1 : 0), cam.z - (axis === "z" ? 1 : 0))}
+              onClick={() => updateCamera(cam.x - (axis === "x" ? 0.1 : 0), cam.y - (axis === "y" ? 0.1 : 0), cam.z - (axis === "z" ? 0.1 : 0))}
             >
               -
             </button>
             {cam[axis as keyof typeof cam]}
             <button
               className="h-full border border-black px-2"
-              onClick={() => updateCamera(cam.x + (axis === "x" ? 1 : 0), cam.y + (axis === "y" ? 1 : 0), cam.z + (axis === "z" ? 1 : 0))}
+              onClick={() => updateCamera(cam.x + (axis === "x" ? 0.1 : 0), cam.y + (axis === "y" ? 0.1 : 0), cam.z + (axis === "z" ? 0.1 : 0))}
             >
               +
             </button>

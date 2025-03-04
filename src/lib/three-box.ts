@@ -56,6 +56,7 @@ class ThreeBox {
 
         // Grid Helper
         const grid = new THREE.GridHelper(10, 100, 0xffffff, 0x7b7b7b);
+        grid.position.set(0, -0.2, 0)
         this.scene.add(grid);
 
         // Camera Setup
@@ -82,10 +83,10 @@ class ThreeBox {
         // Stats Monitor
         this.stats = new Stats();
         console.log([stats])
-        if(stats){
+        if (stats) {
             this.stats.dom.style.position = 'relative'
             stats.appendChild(this.stats.dom)
-        }else{
+        } else {
             document.body.appendChild(this.stats.dom);
         }
 
@@ -107,7 +108,7 @@ class ThreeBox {
         }
     }
 
-    public handleResize(): void {
+    public handleResize = (): void => {
         this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
@@ -143,6 +144,21 @@ class ThreeBox {
     public addHand = (handData: HandData): void => {
         this.removeHand();
         this.handGroup = new THREE.Group();
+
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x0ffff0 }); // Red spheres
+        // Create spheres at each joint
+        handData.right?.forEach((point) => {
+            const sphereGeometry = new THREE.SphereGeometry(0.01, 16, 16); // Adjust size as needed
+            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            sphere.position.set(
+                -(point.x - 0.5), // Invert X
+                -(point.y - 1),   // Invert Y
+                point.z           // Z remains the same
+            );
+            this.handGroup!.add(sphere);
+        });
+
+
         this.handConnector.forEach((item) => {
             const points = item.map(
                 (point) =>
