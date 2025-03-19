@@ -64,7 +64,6 @@ function HandDetect({ setHandResults }: props) {
   return (
     <div>
       <video className="-scale-x-1" ref={videoRef}></video>
-      {/* className='-scale-x-1' */}
     </div>
   );
 }
@@ -78,8 +77,10 @@ function processDetections(
   if (detections && detections.handedness.length >= 1) {
     for (const data of detections.handedness) {
       if (data[0].categoryName === "Right") {
+        const handDetectIndex = detections.landmarks.length > 1 ? data[0].index : 0
+        const landMarkData = detections.landmarks[handDetectIndex]
         setHandResults({
-          right: detections.landmarks[data[0].index],
+          right: landMarkData,
         });
       }
     }
